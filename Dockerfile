@@ -1,9 +1,12 @@
 FROM php:8.2-apache
 
-# Install Intl
+# Install Intl + Zip + Git
 RUN apt-get update && apt-get install -y \
     libicu-dev \
-    && docker-php-ext-install intl
+    zip \
+    unzip \
+    git \
+    && docker-php-ext-install intl zip
 
 # Enable rewrite
 RUN a2enmod rewrite
