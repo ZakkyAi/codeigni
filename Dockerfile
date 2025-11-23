@@ -1,31 +1,30 @@
 FROM php:8.2-apache
 
+# Install dependencies
 RUN apt-get update && apt-get install -y \
-    libicu-dev \
-    libzip-dev \
-    zip \
-    unzip \
-    git \
-    && docker-php-ext-install intl zip
+    zip unzip git curl \
+    && docker-php-ext-install mysqli pdo pdo_mysql
 
+# Enable mod_rewrite
 RUN a2enmod rewrite
-RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-# Set Apache DocumentRoot ke folder public
-ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+# Set Apache DocumentRoot ke folder public CodeIgniter 4
+RUN echo '<VirtualHost *:80>
+    DocumentRoot /var/www/html/public
+    <Directory /var/www/html/public>
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
-# Ubah konfigurasi Apache agar DocumentRoot menjadi /public
-RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
-RUN sed -ri -e 's!/var/www/!/var/www/html/public!g' /etc/apache2/apache2.conf
-
-# Copy semua kode
+# Copy project ke container
 COPY . /var/www/html
 
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-RUN composer install --no-dev --optimize-autoloader
+# Set working directory
+WORKDIR /var/www/html
 
-# Jalankan sesuai port Railway
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
+# Permission folder CI4
+RUN chmod -R 775 writable \
+    && chown -R www-data:www-data writable
 
-CMD ["/start.sh"]
+EXPOSE 80
