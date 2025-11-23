@@ -20,7 +20,7 @@
     </header>
     <main>
         <section>
-            <h1>Contact Me</h1>
+            <h1>Contact Mee</h1>
             <p>Email: your.email@example.com</p>
             <p>LinkedIn: <a href="#">Your LinkedIn</a></p>
             <p>GitHub: <a href="#">Your GitHub</a></p>
