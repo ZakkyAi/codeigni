@@ -1,12 +1,12 @@
 FROM php:8.2-apache
 
 RUN apt-get update && apt-get install -y \
-    zip unzip git curl \
-    && docker-php-ext-install mysqli pdo pdo_mysql
+    zip unzip git curl libicu-dev \
+    && docker-php-ext-install mysqli pdo pdo_mysql intl
 
 RUN a2enmod rewrite
 
-# Apache config
+# Apache DocumentRoot
 RUN printf "<VirtualHost *:80>\n\
     DocumentRoot /var/www/html/public\n\
     <Directory /var/www/html/public>\n\
@@ -16,14 +16,14 @@ RUN printf "<VirtualHost *:80>\n\
 </VirtualHost>\n" \
 > /etc/apache2/sites-available/000-default.conf
 
-# Copy project
+# Copy source
 COPY . /var/www/html
 WORKDIR /var/www/html
 
-# Install Composer
+# Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Install vendor (WAJIB untuk CI4)
+# Install dependencies
 RUN composer install --no-dev --optimize-autoloader
 
 # Permission
